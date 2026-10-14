@@ -1,19 +1,26 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+import { Suspense } from "react";
+import { Countdown } from "@/components/Countdown";
+// restante do código...
 import { Suspense } from "react";
 import { Countdown } from "@/components/Countdown";
 import { GiftList } from "@/components/GiftList";
+import { ImageCarousel } from "@/components/ImageCarousel";
 import { Heart, Gift as GiftIcon, Calendar, MapPin } from "lucide-react";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-stone-50 text-stone-800 pb-20">
       {/* Banner Principal / Hero */}
-      <section className="relative min-h-[75vh] flex flex-col items-center justify-center text-center px-4 py-16 bg-gradient-to-b from-rose-100/70 via-stone-50/50 to-stone-50">
+      <section className="relative min-h-[70vh] flex flex-col items-center justify-center text-center px-4 py-16 bg-gradient-to-b from-rose-100/70 via-stone-50/50 to-stone-50">
         
-        {/* Fotografia em Destaque */}
+        {/* Fotografia em Destaque dos Noivos */}
         <div className="relative mb-6">
           <div className="w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-white shadow-lg mx-auto bg-stone-100">
             <img
-              src="/casal-8.jpeg"
+              src="/casal.jpeg"
               alt="Arthur e Pyetra"
               className="w-full h-full object-cover"
             />
@@ -28,7 +35,7 @@ export default function Home() {
           <span>Nosso Chá de Casa Nova</span>
         </div>
         
-        {/* Nomes do Casal */}
+        {/* Nomes */}
         <h1 className="text-4xl md:text-6xl font-serif text-stone-800 tracking-tight font-normal">
           Arthur & Pyetra
         </h1>
@@ -54,15 +61,18 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Carrossel de Fotos do Casal / Nova Casa */}
+      <ImageCarousel />
+
       {/* Mensagem de Boas-Vindas */}
-      <section className="max-w-2xl mx-auto px-6 py-10 text-center">
+      <section className="max-w-2xl mx-auto px-6 py-6 text-center">
         <h2 className="text-2xl font-serif text-stone-800 mb-3">Bem-vindos à nossa lista de presentes</h2>
         <p className="text-stone-600 leading-relaxed text-sm md:text-base">
-          A presença e o carinho de vocês são o nosso melhor presente. Caso queiram nos ajudar a equipar o nosso novo lar, fiquem à vontade para escolher qualquer item da lista abaixo e fazer a contribuição diretamente via PIX.
+          A presença e o carinho de vocês são o nosso melhor presente. Caso queiram nos ajudar a equipar o nosso novo lar, fiquem à vontade para escolher qualquer item da lista abaixo e fazer a contribuição diretamente via PIX ou Cartão de Crédito.
         </p>
       </section>
 
-      {/* Lista de Presentes com Suspense */}
+      {/* Lista de Presentes com Agrupamento por Cômodo */}
       <section className="max-w-6xl mx-auto px-6 mt-4">
         <div className="flex items-center justify-between border-b border-stone-200 pb-4 mb-8">
           <div className="flex items-center gap-2">
