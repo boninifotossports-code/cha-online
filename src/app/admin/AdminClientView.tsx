@@ -2,16 +2,30 @@
 
 import { useState } from "react";
 import { authenticateAdmin, createGift, deleteGift, logoutAdmin } from "./actions";
-import { PlusCircle, Trash2, Lock, LogOut, Gift as GiftIcon, ExternalLink } from "lucide-react";
+import { PlusCircle, Trash2, Lock, LogOut, Gift as GiftIcon, ExternalLink, Layers } from "lucide-react";
 import Link from "next/link";
 
 type Gift = {
   id: string;
   title: string;
   price: number;
+  totalPrice: number | null;
   imageUrl: string;
   category: string;
+  isQuota: boolean;
+  totalQuotas: number;
+  paidQuotas: number;
 };
+
+const ROOMS = [
+  "Cozinha",
+  "Sala de Estar",
+  "Quarto do Casal",
+  "Casa de Banho",
+  "Varanda / Área Gourmet",
+  "Lavandaria",
+  "Outros",
+];
 
 export default function AdminClientView({
   initialAuth,
@@ -24,6 +38,9 @@ export default function AdminClientView({
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isQuotaChecked, setIsQuotaChecked] = useState(false);
+  const [inputPrice, setInputPrice] = useState<number | string>("");
+  const [inputQuotas, setInputQuotas] = useState<number>(2);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +63,7 @@ export default function AdminClientView({
         <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
           <Lock className="w-6 h-6" />
         </div>
-        <h1 className="text-2xl font-bold text-stone-800">Painel do Chá Online</h1>
+        <h1 className="text-2xl font-bold text-stone-800">Painel do Chá de Casa Nova</h1>
         <p className="text-sm text-stone-500 mt-1 mb-6">Digite a senha de administrador para continuar</p>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -71,12 +88,20 @@ export default function AdminClientView({
     );
   }
 
+  const calculatedQuotaValue =
+    isQuotaChecked && Number(inputPrice) > 0 && inputQuotas > 0
+      ? (Number(inputPrice) / inputQuotas).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        })
+      : null;
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
         <div>
-          <h1 className="text-2xl font-bold text-stone-800">Gerenciar Presentes</h1>
-          <p className="text-sm text-stone-500">Cadastre e acompanhe os itens do seu chá</p>
+          <h1 className="text-2xl font-bold text-stone-800">Gerir Presentes & Cotas</h1>
+          <p className="text-sm text-stone-500">Adicione itens divididos por compartimentos ou em cotas</p>
         </div>
         <div className="flex items-center gap-3">
           <Link
@@ -98,6 +123,7 @@ export default function AdminClientView({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Formulário */}
         <div className="md:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-stone-200 h-fit">
           <h2 className="text-lg font-bold text-stone-800 mb-4 flex items-center gap-2">
             <PlusCircle className="w-5 h-5 text-rose-500" /> Novo Presente
@@ -107,6 +133,8 @@ export default function AdminClientView({
             action={async (formData) => {
               await createGift(formData);
               (document.getElementById("gift-form") as HTMLFormElement)?.reset();
+              setIsQuotaChecked(false);
+              setInputPrice("");
             }}
             id="gift-form"
             className="space-y-4"
@@ -116,36 +144,72 @@ export default function AdminClientView({
               <input
                 name="title"
                 type="text"
-                placeholder="Ex: Pacote de Fralda M"
+                placeholder="Ex: Frigorífico Frost Free"
                 required
                 className="w-full mt-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-stone-600 uppercase">Valor sugerido (R$)</label>
-              <input
-                name="price"
-                type="number"
-                step="0.01"
-                placeholder="Ex: 89.90"
-                required
-                className="w-full mt-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-stone-600 uppercase">Categoria</label>
+              <label className="text-xs font-semibold text-stone-600 uppercase">Cômodo</label>
               <select
                 name="category"
                 className="w-full mt-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none"
               >
-                <option value="Higiene">Higiene & Cuidados</option>
-                <option value="Quarto">Quarto & Enxoval</option>
-                <option value="Passeio">Passeio & Transporte</option>
-                <option value="Alimentação">Alimentação</option>
-                <option value="Geral">Outros</option>
+                {ROOMS.map((room) => (
+                  <option key={room} value={room}>
+                    {room}
+                  </option>
+                ))}
               </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-stone-600 uppercase">Valor Total (R$)</label>
+              <input
+                name="price"
+                type="number"
+                step="0.01"
+                placeholder="Ex: 2000.00"
+                value={inputPrice}
+                onChange={(e) => setInputPrice(e.target.value)}
+                required
+                className="w-full mt-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Configuração de Cotas */}
+            <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isQuota"
+                  checked={isQuotaChecked}
+                  onChange={(e) => setIsQuotaChecked(e.target.checked)}
+                  className="rounded text-rose-500 focus:ring-rose-500 w-4 h-4"
+                />
+                <span className="text-xs font-semibold text-stone-700">Dividir em Cotas?</span>
+              </label>
+
+              {isQuotaChecked && (
+                <div className="space-y-2 pt-1 border-t border-stone-200">
+                  <label className="text-xs text-stone-600 block">Número de Cotas:</label>
+                  <input
+                    type="number"
+                    name="totalQuotas"
+                    min="2"
+                    max="50"
+                    value={inputQuotas}
+                    onChange={(e) => setInputQuotas(parseInt(e.target.value, 10) || 2)}
+                    className="w-full px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                  />
+                  {calculatedQuotaValue && (
+                    <p className="text-xs text-rose-600 font-medium">
+                      Ficará {inputQuotas} cotas de {calculatedQuotaValue} cada.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div>
@@ -168,9 +232,10 @@ export default function AdminClientView({
           </form>
         </div>
 
+        {/* Lista */}
         <div className="md:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
           <h2 className="text-lg font-bold text-stone-800 mb-4">
-            Itens Cadastrados ({gifts.length})
+            Itens Registados ({gifts.length})
           </h2>
 
           {gifts.length === 0 ? (
@@ -179,7 +244,7 @@ export default function AdminClientView({
               <p className="text-sm">Nenhum presente na lista ainda.</p>
             </div>
           ) : (
-            <div className="divide-y divide-stone-100">
+            <div className="divide-y divide-stone-100 max-h-[600px] overflow-y-auto pr-1">
               {gifts.map((gift) => (
                 <div key={gift.id} className="py-3.5 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
@@ -191,9 +256,32 @@ export default function AdminClientView({
                     <div>
                       <h4 className="font-medium text-stone-800 text-sm">{gift.title}</h4>
                       <p className="text-xs text-rose-600 font-bold">
-                        {gift.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                        <span className="ml-2 font-normal text-stone-400">({gift.category})</span>
+                        {gift.isQuota ? (
+                          <>
+                            {gift.totalQuotas}x de{" "}
+                            {gift.price.toLocaleString("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            })}
+                            <span className="text-stone-500 font-normal ml-1">
+                              (Total:{" "}
+                              {(gift.totalPrice || gift.price * gift.totalQuotas).toLocaleString("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                              })}
+                              )
+                            </span>
+                          </>
+                        ) : (
+                          gift.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                        )}
+                        <span className="ml-2 font-normal text-stone-400">[{gift.category}]</span>
                       </p>
+                      {gift.isQuota && (
+                        <p className="text-[11px] text-stone-400 flex items-center gap-1 mt-0.5">
+                          <Layers className="w-3 h-3" /> {gift.paidQuotas} de {gift.totalQuotas} cotas presenteadas
+                        </p>
+                      )}
                     </div>
                   </div>
 

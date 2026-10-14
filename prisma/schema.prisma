@@ -15,9 +15,16 @@ model Gift {
   id          String   @id @default(cuid())
   title       String
   description String?
-  price       Float
+  price       Float    // Valor unitário ou valor da cota individual
+  totalPrice  Float?   // Valor total original do produto (ex: 2000.00)
   imageUrl    String
-  category    String   @default("Geral")
+  category    String   @default("Sala de Estar") // Cômodo da casa
+  
+  // Sistema de Cotas
+  isQuota     Boolean  @default(false)
+  totalQuotas Int      @default(1)     // Quantidade total de cotas (ex: 4)
+  paidQuotas  Int      @default(0)     // Quantidade de cotas já adquiridas
+  
   status      String   @default("AVAILABLE") // AVAILABLE, RESERVED, GIFTED
   reservedBy  String?
   message     String?

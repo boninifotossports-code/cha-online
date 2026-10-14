@@ -31,22 +31,29 @@ export async function logoutAdmin() {
 
 export async function createGift(formData: FormData) {
   const title = formData.get("title") as string;
-  const price = parseFloat(formData.get("price") as string);
+  const rawPrice = parseFloat(formData.get("price") as string);
   const imageUrl = formData.get("imageUrl") as string;
-  const category = (formData.get("category") as string) || "Geral";
-  const description = (formData.get("description") as string) || "";
+  const category = (formData.get("category") as string) || "Outros";
+  const isQuota = formData.get("isQuota") === "on";
+  const totalQuotas = isQuota ? parseInt(formData.get("totalQuotas") as string, 10) || 1 : 1;
 
-  if (!title || isNaN(price) || !imageUrl) {
+  if (!title || isNaN(rawPrice) || !imageUrl) {
     throw new Error("Preencha título, valor e URL da imagem.");
   }
+
+  // Se for cota, o preço individual é o total dividido pelo número de cotas
+  const quotaPrice = isQuota ? rawPrice / totalQuotas : rawPrice;
 
   await prisma.gift.create({
     data: {
       title,
-      price,
+      price: quotaPrice,
+      totalPrice: rawPrice,
       imageUrl,
       category,
-      description,
+      isQuota,
+      totalQuotas,
+      paidQuotas: 0,
     },
   });
 
