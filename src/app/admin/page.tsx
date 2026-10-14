@@ -1,34 +1,19 @@
-import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
-import { checkAdminAuth } from "./actions";
 import AdminClientView from "./AdminClientView";
 
-// Componente que executa as operações de runtime (cookies e banco)
-async function AdminContent() {
-  const isAuthenticated = await checkAdminAuth();
+export default async function AdminPage() {
+  const gifts = await prisma.gift.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-  const gifts = isAuthenticated
-    ? await prisma.gift.findMany({
-        orderBy: { createdAt: "desc" },
-      })
-    : [];
-
-  return <AdminClientView initialAuth={isAuthenticated} gifts={gifts} />;
-}
-
-// Página principal com fallback do Suspense para permitir o prerender estático
-export default function AdminPage() {
   return (
-    <div className="min-h-screen bg-stone-100 p-6 md:p-12 text-stone-800">
-      <Suspense
-        fallback={
-          <div className="max-w-md mx-auto mt-20 text-center text-stone-400">
-            <p className="text-sm">Carregando painel...</p>
-          </div>
-        }
-      >
-        <AdminContent />
-      </Suspense>
+    <div className="min-h-screen bg-stone-50 py-10 px-4">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl font-serif text-stone-800 mb-6">Painel Administrativo</h1>
+        <AdminClientView initialAuth={false} gifts={gifts as any} />
+      </div>
     </div>
   );
 }
