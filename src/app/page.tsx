@@ -7,10 +7,10 @@ import { Heart, Gift as GiftIcon, Calendar, MapPin } from "lucide-react";
 export default function Home() {
   return (
     <main className="min-h-screen bg-stone-50 text-stone-800 pb-20">
-      {/* Banner Principal / Hero */}
+      {/* Banner Principal */}
       <section className="relative min-h-[70vh] flex flex-col items-center justify-center text-center px-4 py-16 bg-gradient-to-b from-rose-100/70 via-stone-50/50 to-stone-50">
         
-        {/* Fotografia em Destaque dos Noivos */}
+        {/* Foto de Destaque */}
         <div className="relative mb-6">
           <div className="w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-white shadow-lg mx-auto bg-stone-100">
             <img
@@ -34,12 +34,12 @@ export default function Home() {
           Arthur & Pyetra
         </h1>
 
-        {/* Mensagem Curta */}
+        {/* Mensagem */}
         <p className="mt-3 text-stone-600 max-w-lg text-base md:text-lg leading-relaxed">
           Preparamos este cantinho com muito carinho para compartilhar com vocês a alegria da nossa casa nova.
         </p>
 
-        {/* Detalhes de Data e Local */}
+        {/* Informações de Data e Local */}
         <div className="mt-6 flex flex-wrap gap-3 justify-center text-sm font-medium text-stone-700">
           <span className="flex items-center gap-2 bg-white/90 px-4 py-2 rounded-full shadow-sm border border-stone-200/80">
             <Calendar className="w-4 h-4 text-rose-500" /> 8 de Novembro de 2026
@@ -55,7 +55,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Carrossel de Fotos Panorâmico */}
+      {/* Carrossel Panorâmico */}
       <ImageCarousel />
 
       {/* Mensagem de Boas-Vindas */}
@@ -66,7 +66,7 @@ export default function Home() {
         </p>
       </section>
 
-      {/* Lista de Presentes com Agrupamento por Divisões */}
+      {/* Lista de Presentes Agrupada por Cômodo */}
       <section className="max-w-6xl mx-auto px-6 mt-4">
         <div className="flex items-center justify-between border-b border-stone-200 pb-4 mb-8">
           <div className="flex items-center gap-2">
