@@ -1,15 +1,9 @@
-import { prisma } from "@/lib/prisma";
+import { Suspense } from "react";
 import { Countdown } from "@/components/Countdown";
-import { GiftCard } from "@/components/GiftCard";
+import { GiftList } from "@/components/GiftList";
 import { Heart, Gift as GiftIcon, Calendar, MapPin } from "lucide-react";
 
-export const revalidate = 0; // Garante dados sempre atualizados
-
-export default async function Home() {
-  const gifts = await prisma.gift.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-
+export default function Home() {
   return (
     <main className="min-h-screen bg-stone-50 text-stone-800 pb-20">
       {/* Hero Banner */}
@@ -43,7 +37,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Sessão da História / Mensagem */}
+      {/* Sessão da Mensagem */}
       <section className="max-w-3xl mx-auto px-6 py-12 text-center">
         <h2 className="text-2xl font-serif text-stone-800 mb-4">Bem-vindos ao nosso cantinho!</h2>
         <p className="text-stone-600 leading-relaxed">
@@ -52,29 +46,24 @@ export default async function Home() {
         </p>
       </section>
 
-      {/* Lista de Presentes */}
+      {/* Lista de Presentes envolvida por Suspense */}
       <section className="max-w-6xl mx-auto px-6 mt-6">
         <div className="flex items-center justify-between border-b border-stone-200 pb-4 mb-8">
           <div className="flex items-center gap-2">
             <GiftIcon className="w-6 h-6 text-rose-500" />
             <h2 className="text-2xl font-bold text-stone-800">Lista de Presentes</h2>
           </div>
-          <span className="text-sm text-stone-500">{gifts.length} itens disponíveis</span>
         </div>
 
-        {gifts.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-stone-200">
-            <GiftIcon className="w-12 h-12 text-stone-300 mx-auto mb-3" />
-            <p className="text-stone-500 font-medium">Nenhum presente cadastrado ainda.</p>
-            <p className="text-xs text-stone-400 mt-1">Os itens cadastrados no painel aparecerão aqui.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {gifts.map((gift) => (
-              <GiftCard key={gift.id} gift={gift} />
-            ))}
-          </div>
-        )}
+        <Suspense
+          fallback={
+            <div className="text-center py-16 text-stone-400">
+              <p className="text-sm">Carregando presentes...</p>
+            </div>
+          }
+        >
+          <GiftList />
+        </Suspense>
       </section>
     </main>
   );
