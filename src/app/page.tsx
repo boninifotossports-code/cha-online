@@ -3,9 +3,6 @@ export const revalidate = 0;
 
 import { Suspense } from "react";
 import { Countdown } from "@/components/Countdown";
-// restante do código...
-import { Suspense } from "react";
-import { Countdown } from "@/components/Countdown";
 import { GiftList } from "@/components/GiftList";
 import { ImageCarousel } from "@/components/ImageCarousel";
 import { Heart, Gift as GiftIcon, Calendar, MapPin } from "lucide-react";
@@ -61,7 +58,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Carrossel de Fotos do Casal / Nova Casa */}
+      {/* Carrossel de Fotos Panorâmico */}
       <ImageCarousel />
 
       {/* Mensagem de Boas-Vindas */}
@@ -72,7 +69,7 @@ export default function Home() {
         </p>
       </section>
 
-      {/* Lista de Presentes com Agrupamento por Cômodo */}
+      {/* Lista de Presentes com Agrupamento por Divisões */}
       <section className="max-w-6xl mx-auto px-6 mt-4">
         <div className="flex items-center justify-between border-b border-stone-200 pb-4 mb-8">
           <div className="flex items-center gap-2">
