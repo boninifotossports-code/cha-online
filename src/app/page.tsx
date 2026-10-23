@@ -3,6 +3,8 @@ import { Countdown } from "@/components/Countdown";
 import { GiftList } from "@/components/GiftList";
 import { ImageCarousel } from "@/components/ImageCarousel";
 import { Heart, Gift as GiftIcon, Calendar, MapPin } from "lucide-react";
+import "./globals.css";
+
 
 export default function Home() {
   return (
