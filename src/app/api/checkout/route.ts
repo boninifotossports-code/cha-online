@@ -7,38 +7,51 @@ const client = new MercadoPagoConfig({
 
 export async function POST(req: Request) {
   try {
-    const { giftId, title, price, isQuota } = await req.json();
+    const { giftId, title, price, isQuota, quantity = 1 } = await req.json();
+
+    const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://arthurepyetra.vercel.app";
+    const siteUrl = rawSiteUrl.replace(/\/$/, "");
 
     const preference = new Preference(client);
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+    const unitPrice = parseFloat(Number(price).toFixed(2));
+    const qty = parseInt(String(quantity), 10) || 1;
 
     const response = await preference.create({
       body: {
         items: [
           {
-            id: giftId,
-            title: isQuota ? `Cota: ${title}` : title,
-            quantity: 1,
-            unit_price: Number(price),
+            id: String(giftId),
+            title: isQuota ? `Cota (${qty}x): ${title}` : String(title).slice(0, 100),
+            quantity: qty,
+            unit_price: unitPrice,
             currency_id: "BRL",
           },
         ],
+        metadata: {
+          gift_id: String(giftId),
+          is_quota: Boolean(isQuota),
+          quantity: qty,
+        },
         back_urls: {
           success: `${siteUrl}/?status=success`,
           failure: `${siteUrl}/?status=failure`,
           pending: `${siteUrl}/?status=pending`,
         },
-        auto_return: "approved",
+        notification_url: `${siteUrl}/api/webhooks/mercadopago`,
         payment_methods: {
-          excluded_payment_types: [{ id: "ticket" }], // Remove boleto para focar em Cartão e PIX imediato
+          excluded_payment_types: [{ id: "ticket" }],
           installments: 12,
         },
       },
     });
 
     return NextResponse.json({ init_point: response.init_point });
-  } catch (error) {
-    console.error("Erro no checkout do Mercado Pago:", error);
-    return NextResponse.json({ error: "Falha ao gerar link de pagamento" }, { status: 500 });
+  } catch (error: any) {
+    console.error("Erro detalhado Mercado Pago:", error);
+    return NextResponse.json(
+      { error: "Falha ao gerar link de pagamento", details: error?.message },
+      { status: 500 }
+    );
   }
 }
